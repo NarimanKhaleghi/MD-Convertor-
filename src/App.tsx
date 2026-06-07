@@ -24,43 +24,7 @@ import mammoth from 'mammoth';
 const LOCAL_STORAGE_KEY = 'decomark_editor_content';
 const LOCAL_STORAGE_LANG_KEY = 'decomark_editor_language';
 
-const DEFAULT_WELCOME_CONTENT = `# 📝 Advanced Markdown Convertor | تبدیل کننده پیشرفته مارکداون
-
-This is a modern, high-performance, and server-independent (client-side) browser application for writing **Markdown** with multi-format offline compilation.
-
----
-
-### Key Features Summary:
-- **Auto Right-to-Left (RTL) Layout**: When you start typing in Persian or Arabic, the line naturally aligns RTL.
-- **Latency-Free Editor**: Parallel parser keeps typing fluid with a 0ms rendering overhead.
-- **Smart Google Workspace Importer**: Easily import and convert rich notes from Google Keep and Google Docs with clipboard formats preserved.
-- **Durable Offline Access**: Zero-dependency PWA supports full offline writing.
-
----
-
-### GFM Multilingual Table (نمونه جدول هماهنگ)
-| Product Name (محصول) | Price (قیمت) | Development Status | Cell Alignment |
-| :--- | :---: | ---: | :--- |
-| Converter Engine | FREE | Stable | Center |
-| PWA Local Shell | FREE | Production-Ready | Right-aligned |
-
----
-
-### Code Execution Block
-\`\`\`javascript
-// Automatic document rendering check
-function initApp() {
-  console.log("Client-side Markdown processing engine loaded.");
-}
-\`\`\`
-
----
-
-### Stress & Feature Verification Checklist
-- [x] Run 25,000 words stress parsing with real-time throughput.
-- [x] Test GFM nested list trees with mix-directional labels.
-- [ ] Try exporting to Microsoft Word (.docx) or PDF completely offline.
-`;
+const DEFAULT_WELCOME_CONTENT = '';
 
 interface Toast {
   id: string;
@@ -491,6 +455,91 @@ export default function App() {
       });
   };
 
+  // Enhanced OS and Browser Detection for step-by-step PWA Instructions Modal
+  const getPwaInstructions = () => {
+    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera || '';
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
+    const isAndroid = /android/i.test(userAgent);
+    const isChrome = /Chrome/i.test(userAgent) && !/Edge/i.test(userAgent) && !/OPR/i.test(userAgent);
+    const isSafari = /Safari/i.test(userAgent) && !/Chrome/i.test(userAgent);
+
+    if (language === 'fa') {
+      if (isIOS) {
+        return {
+          platform: 'iOS (آیفون / آیپد)',
+          browser: isSafari ? 'Safari' : 'مرورگر پیش‌فرض',
+          icon: '🍏',
+          steps: [
+            '۱. این وب‌سایت را حتماً در مرورگر Safari آیفون خود باز کنید.',
+            '۲. در منوی پایین روی دکمه اشتراک‌گذاری (Share 📤) ضربه بزنید.',
+            '۳. به پایین اسکرول کنید و گزینه «Add to Home Screen» (افزودن به صفحه اصلی ➕) را انتخاب نمایید.',
+            '۴. برنامه با آیکون مستقل روی صفحه ظاهر شده و به صورت کاملاً آفلاین قابل استفاده خواهد بود!'
+          ]
+        };
+      } else if (isAndroid) {
+        return {
+          platform: 'اندروید (Android)',
+          browser: isChrome ? 'Google Chrome' : 'مرورگر فرعی',
+          icon: '🤖',
+          steps: [
+            '۱. این صفحه را در مرورگر Google Chrome گوشی خود باز کنید.',
+            '۲. روی آیکون سه نقطه (⋮) در گوشه بالای صفحه ضربه بزنید.',
+            '۳. گزینه «Install App» (نصب برنامه) یا «Add to Home screen» را انتخاب کنید.',
+            '۴. برنامه به صورت کاملا آفلاین و مستقل روی دستگاه شما نصب می‌شود.'
+          ]
+        };
+      } else {
+        return {
+          platform: 'دسکتاپ (ویندوز / مک)',
+          browser: 'مرورگر استاندارد دسکتاپ',
+          icon: '💻',
+          steps: [
+            '۱. در نوار آدرس بالای مرورگر (مانند Chrome یا Edge) به دنبال آیکون «نصب» بگردید.',
+            '۲. بر روی دکمه Install کلیک کرده و با افزودن برنامه موافقت نمایید.',
+            '۳. این ابزار کارآمد هم‌اکنون به صورت ۱۰۰٪ آفلاین و بدون تاخیر مانند برنامه‌های بومی در دسترس شماست.'
+          ]
+        };
+      }
+    } else {
+      if (isIOS) {
+        return {
+          platform: 'iOS (iPhone / iPad)',
+          browser: isSafari ? 'Safari' : 'Default Browser',
+          icon: '🍏',
+          steps: [
+            '1. Ensure you have opened this web application inside Safari browser.',
+            '2. Tap the Share button (📤) in the default bottom navigation bar.',
+            '3. Choose the "Add to Home Screen" (➕) option from the menu list.',
+            '4. Launch it anytime from your home screen directly, keeping the tool fully offline!'
+          ]
+        };
+      } else if (isAndroid) {
+        return {
+          platform: 'Android Device',
+          browser: isChrome ? 'Chrome' : 'Default Browser',
+          icon: '🤖',
+          steps: [
+            '1. Open this page inside the Google Chrome browser on your device.',
+            '2. Tap the triple-dots menu (⋮) located in the upper corner.',
+            '3. Select "Install App" or "Add to Home Screen" from the menu options.',
+            '4. A native-like standalone app icon is added supporting complete offline operations.'
+          ]
+        };
+      } else {
+        return {
+          platform: 'Desktop / Laptop',
+          browser: 'Chromium Browser',
+          icon: '💻',
+          steps: [
+            '1. Look for the "Install App" button in the address bar (top right).',
+            '2. Alternatively, open the browser settings menu and click "Save and Share > Install App".',
+            '3. Run and compile documents with native performances even when fully offline!'
+          ]
+        };
+      }
+    }
+  };
+
   // --- Handlers: Chrome manual installing prompt ---
   const triggerInstallApp = async () => {
     if (!deferredPrompt) return;
@@ -668,45 +717,68 @@ export default function App() {
       </div>
 
       {/* --- Beautiful iOS Manual Installation Instruction Sheet --- */}
-      {showIosInstallModal && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-3xs" dir={language === 'fa' ? 'rtl' : 'ltr'}>
-          <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col font-sans-fa">
-            
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800 mb-4">
-              <div className="flex items-center gap-2">
-                <Smartphone className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                <span className="text-sm font-extrabold text-slate-900 dark:text-zinc-100">
-                  {t.iosInstallTitle}
-                </span>
+      {showIosInstallModal && (() => {
+        const pwa = getPwaInstructions();
+        return (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-3xs" dir={language === 'fa' ? 'rtl' : 'ltr'}>
+            <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col font-sans-fa">
+              
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-zinc-800 mb-4">
+                <div className="flex items-center gap-2">
+                  <Smartphone className="w-4 h-4 text-indigo-600 dark:text-indigo-400 animate-pulse" />
+                  <span className="text-sm font-extrabold text-slate-900 dark:text-zinc-100">
+                    {language === 'fa' ? 'نصب وب‌اپلیکیشن آفلاین (PWA)' : 'PWA Offline App Installation'}
+                  </span>
+                </div>
+                <button 
+                  onClick={() => setShowIosInstallModal(false)}
+                  className="p-1.5 hover:bg-slate-100 dark:hover:bg-zinc-850 rounded-lg cursor-pointer"
+                  type="button"
+                >
+                  <X className="w-4 h-4 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-350 transition-colors" />
+                </button>
               </div>
-              <button 
+
+              {/* Detected system badge */}
+              <div className="flex items-center gap-2 mb-4 p-2.5 bg-indigo-50/50 dark:bg-indigo-950/25 border border-indigo-150/40 dark:border-indigo-900/45 rounded-xl">
+                <span className="text-xl shrink-0">{pwa.icon}</span>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase leading-none">
+                    {language === 'fa' ? 'سیستم شناسایی‌شده شما' : 'Your Detected Platform'}
+                  </span>
+                  <span className="text-xs font-black text-indigo-650 dark:text-indigo-400 mt-1 leading-none">
+                    {pwa.platform} — {pwa.browser}
+                  </span>
+                </div>
+              </div>
+
+              {/* Information description about offline usability */}
+              <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
+                {language === 'fa' 
+                  ? '💡 با نصب نسخه وب‌اپلیکیشن مستقل، می‌توانید به صورت کاملاً آفلاین و دائم، بدون نیاز به اینترنت و با سرعت بسیار بالا از این مبدل اسناد استفاده نمایید.' 
+                  : '💡 Activating the standalone web application allows you to write, edit, and compile documents completely offline, bypass browser loads, and gain instantaneous starting times.'}
+              </p>
+
+              {/* Guided dynamic steps */}
+              <div className="space-y-3 text-xs text-zinc-850 dark:text-zinc-300 mb-5 bg-slate-50 dark:bg-zinc-950/20 p-4 rounded-xl border border-slate-100 dark:border-zinc-850">
+                {pwa.steps.map((step, idx) => (
+                  <div key={idx} className="font-semibold leading-relaxed">
+                    {step}
+                  </div>
+                ))}
+              </div>
+
+              <button
                 onClick={() => setShowIosInstallModal(false)}
-                className="p-1 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded"
+                className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs transition-colors cursor-pointer shadow-sm shadow-indigo-600/10"
+                type="button"
               >
-                <X className="w-4 h-4 text-slate-400" />
+                {t.iosInstallClose}
               </button>
             </div>
-
-            <p className="text-xs text-zinc-650 dark:text-zinc-400 leading-relaxed mb-4">
-              {t.iosInstallDesc}
-            </p>
-
-            <div className="space-y-3.5 text-xs text-zinc-800 dark:text-zinc-300 mb-5 bg-slate-50 dark:bg-zinc-950/20 p-4 rounded-xl border border-slate-100 dark:border-zinc-800">
-              <div className="font-medium">{t.iosInstallStep1}</div>
-              <div className="font-medium">{t.iosInstallMakeSure || t.iosInstallStep2}</div>
-              <div className="font-medium">{t.iosInstallStep3}</div>
-            </div>
-
-            <button
-              onClick={() => setShowIosInstallModal(false)}
-              className="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg text-xs transition-colors cursor-pointer"
-              type="button"
-            >
-              {t.iosInstallClose}
-            </button>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Beautiful Toast Notifications Container */}
       <div className="fixed bottom-6 right-6 z-[999] flex flex-col gap-2 max-w-sm w-full pointer-events-none select-none">

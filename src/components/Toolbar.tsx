@@ -181,74 +181,73 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   ];
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-1.5 p-3 bg-slate-50 dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800 shrink-0 sticky top-0 z-40 select-none">
-      <div className="flex flex-wrap items-center gap-1">
-        {/* Emphasis Group */}
-        <div className="flex items-center gap-0.5 border-r border-slate-200 dark:border-zinc-800 pr-3 mr-3">
-          {formattingOptions.filter(o => o.group === 'emphasis').map((opt) => (
-            <button
-              key={opt.label}
-              onClick={opt.action}
-              className="p-1.5 hover:bg-slate-200/80 dark:hover:bg-zinc-850 rounded-md text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-              title={opt.label}
-              type="button"
-            >
-              {opt.icon}
-            </button>
-          ))}
-        </div>
-
-        {/* Headings & Structure Group */}
-        <div className="flex items-center gap-0.5 border-r border-slate-200 dark:border-zinc-800 pr-3 mr-3">
-          {formattingOptions.filter(o => o.group === 'text' || o.label === 'Horizontal Divider').map((opt) => (
-            <button
-              key={opt.label}
-              onClick={opt.action}
-              className="p-1.5 hover:bg-slate-200/80 dark:hover:bg-zinc-850 rounded-md text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-              title={opt.label}
-              type="button"
-            >
-              {opt.icon}
-            </button>
-          ))}
-        </div>
-
-        {/* List Group */}
-        <div className="flex items-center gap-0.5 border-r border-slate-200 dark:border-zinc-800 pr-3 mr-3">
-          {formattingOptions.filter(o => o.group === 'lists').map((opt) => (
-            <button
-              key={opt.label}
-              onClick={opt.action}
-              className="p-1.5 hover:bg-slate-200/80 dark:hover:bg-zinc-850 rounded-md text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-              title={opt.label}
-              type="button"
-            >
-              {opt.icon}
-            </button>
-          ))}
-        </div>
-
-        {/* Table, Quote, Asset Group */}
-        <div className="flex items-center gap-0.5">
-          {formattingOptions.filter(o => o.group === 'assets' || o.group === 'code' || o.label === 'Blockquote' || o.label === 'GFM Table').map((opt) => (
-            <button
-              key={opt.label}
-              onClick={opt.action}
-              className="p-1.5 hover:bg-slate-200/80 dark:hover:bg-zinc-850 rounded-md text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
-              title={opt.label}
-              type="button"
-            >
-              {opt.icon}
-            </button>
-          ))}
-        </div>
+    <div className="flex flex-wrap items-center gap-y-1.5 gap-x-1 p-2 md:p-3 bg-slate-50 dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800 shrink-0 sticky top-0 z-40 select-none">
+      {/* Emphasis Group */}
+      <div className="flex items-center gap-0.5 border-r border-slate-200 dark:border-zinc-800 pr-1 mr-1 xs:pr-2 xs:mr-2 md:pr-3 md:mr-3">
+        {formattingOptions.filter(o => o.group === 'emphasis').map((opt) => (
+          <button
+            key={opt.label}
+            onClick={opt.action}
+            className="p-1 md:p-1.5 hover:bg-slate-200/80 dark:hover:bg-zinc-850 rounded-md text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+            title={opt.label}
+            type="button"
+          >
+            {opt.icon}
+          </button>
+        ))}
       </div>
 
-      <div className="flex items-center gap-1.5 ml-auto">
+      {/* Headings & Structure Group */}
+      <div className="flex items-center gap-0.5 border-r border-slate-200 dark:border-zinc-800 pr-1 mr-1 xs:pr-2 xs:mr-2 md:pr-3 md:mr-3">
+        {formattingOptions.filter(o => o.group === 'text' || o.label === 'Horizontal Divider').map((opt) => (
+          <button
+            key={opt.label}
+            onClick={opt.action}
+            className="p-1 md:p-1.5 hover:bg-slate-200/80 dark:hover:bg-zinc-850 rounded-md text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+            title={opt.label}
+            type="button"
+          >
+            {opt.icon}
+          </button>
+        ))}
+      </div>
+
+      {/* List Group */}
+      <div className="flex items-center gap-0.5 border-r border-slate-200 dark:border-zinc-800 pr-1 mr-1 xs:pr-2 xs:mr-2 md:pr-3 md:mr-3">
+        {formattingOptions.filter(o => o.group === 'lists').map((opt) => (
+          <button
+            key={opt.label}
+            onClick={opt.action}
+            className="p-1 md:p-1.5 hover:bg-slate-200/80 dark:hover:bg-zinc-850 rounded-md text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+            title={opt.label}
+            type="button"
+          >
+            {opt.icon}
+          </button>
+        ))}
+      </div>
+
+      {/* Table, Quote, Asset Group */}
+      <div className="flex items-center gap-0.5 border-r border-transparent xs:border-slate-200 dark:xs:border-zinc-800 pr-0.5 mr-0.5 xs:pr-2 xs:mr-2 md:pr-3 md:mr-3">
+        {formattingOptions.filter(o => o.group === 'assets' || o.group === 'code' || o.label === 'Blockquote' || o.label === 'GFM Table').map((opt) => (
+          <button
+            key={opt.label}
+            onClick={opt.action}
+            className="p-1 md:p-1.5 hover:bg-slate-200/80 dark:hover:bg-zinc-850 rounded-md text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+            title={opt.label}
+            type="button"
+          >
+            {opt.icon}
+          </button>
+        ))}
+      </div>
+
+      {/* Operations Controls (RTL, Clear) - Floats directly inline as a flat group */}
+      <div className="flex items-center gap-1 sm:ml-auto ml-auto shrink-0 py-0.5">
         {/* Persian / RTL Assist Toggle */}
         <button
           onClick={onToggleForceRTL}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer border ${
+          className={`flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer border ${
             forceRTL 
               ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-650 dark:text-indigo-400 border-indigo-200 dark:border-indigo-900' 
               : 'hover:bg-slate-200/80 dark:hover:bg-zinc-800 text-slate-600 dark:text-zinc-400 border-transparent hover:text-slate-800'
@@ -263,7 +262,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         {/* Erase / Clear Canvas */}
         <button
           onClick={onClear}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-455 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-md border border-transparent hover:border-rose-100 dark:hover:border-rose-900/40 transition-all cursor-pointer"
+          className="flex items-center gap-1 px-2 py-1 text-xs font-semibold text-rose-600 dark:text-rose-455 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-md border border-transparent hover:border-rose-100 dark:hover:border-rose-900/40 transition-all cursor-pointer"
           title="Clear Document Canvas"
           type="button"
         >

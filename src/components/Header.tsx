@@ -72,34 +72,32 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="flex flex-col lg:flex-row items-center justify-between gap-4 px-6 py-4 bg-white dark:bg-zinc-950 border-b border-slate-200 dark:border-zinc-850 shadow-xs shrink-0 z-50">
       {/* Brand Title and Auto-saving Status indicator */}
-      <div className="flex items-center gap-4 w-full lg:w-auto justify-between lg:justify-start flex-wrap">
-        <div className="flex items-center gap-3">
-          <div className="flex flex-col">
-            <h1 className="text-sm md:text-base font-extrabold text-slate-900 dark:text-zinc-50 tracking-tight leading-none">
-              Markdown Convertor | تبدیل کننده مارکداون
-            </h1>
-            <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-1 font-sans-fa">
-              {language === 'fa' 
-                ? 'پردازشگر مستقل، سرعت بالا، بدون نیاز به سرور' 
-                : 'Offline-First Professional Client-Side Document Transformer'}
-            </p>
-          </div>
+      <div className="flex flex-col lg:flex-row items-center gap-4 w-full lg:w-auto justify-center lg:justify-start">
+        <div className="flex flex-col items-center lg:items-start text-center lg:text-right font-sans-fa">
+          <h1 className="text-sm md:text-base font-extrabold text-slate-900 dark:text-zinc-50 tracking-tight leading-none text-center lg:text-initial">
+            {t.appName}
+          </h1>
+          <p className="text-[10px] text-zinc-450 dark:text-zinc-500 mt-1.5 font-sans-fa text-center lg:text-initial">
+            {language === 'fa' 
+              ? 'پردازشگر مستقل، سرعت بالا، بدون نیاز به سرور' 
+              : 'Offline-First Professional Client-Side Document Transformer'}
+          </p>
+        </div>
 
-          {/* Clean, Non-intrusive Safe Auto-saving Indicator */}
-          <div className="flex items-center gap-1.5 ml-2">
-            {savingStatus === 'saving' && (
-              <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-950/20 rounded border border-amber-200 dark:border-amber-900/40 font-sans-fa animate-pulse">
-                <RefreshCcw className="w-2.5 h-2.5 animate-spin text-amber-500" />
-                <span className="hidden sm:inline">{t.autoSaving}</span>
-              </span>
-            )}
-            {savingStatus === 'saved' && (
-              <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20 rounded border border-emerald-200 dark:border-emerald-900/40 font-sans-fa">
-                <Check className="w-3 h-3 text-emerald-500 stroke-[3]" />
-                <span className="hidden sm:inline">{t.saved}</span>
-              </span>
-            )}
-          </div>
+        {/* Clean, Non-intrusive Safe Auto-saving Indicator */}
+        <div className="flex items-center gap-1.5 justify-center lg:justify-start">
+          {savingStatus === 'saving' && (
+            <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-950/20 rounded border border-amber-200 dark:border-amber-900/40 font-sans-fa animate-pulse">
+              <RefreshCcw className="w-2.5 h-2.5 animate-spin text-amber-500" />
+              <span className="hidden sm:inline">{t.autoSaving}</span>
+            </span>
+          )}
+          {savingStatus === 'saved' && (
+            <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20 rounded border border-emerald-200 dark:border-emerald-900/40 font-sans-fa">
+              <Check className="w-3 h-3 text-emerald-500 stroke-[3]" />
+              <span className="hidden sm:inline">{t.saved}</span>
+            </span>
+          )}
         </div>
       </div>
 
@@ -238,31 +236,16 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        {/* Global PWA Install trigger (Chrome) or instructions (iOS) */}
-        {isInstallable && (
-          <button
-            onClick={onTriggerInstall}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-55 dark:bg-indigo-950/30 border border-indigo-150/65 dark:border-indigo-900/60 rounded-md hover:bg-indigo-100 dark:hover:bg-indigo-950/50 transition-all cursor-pointer font-sans-fa"
-            title="Install App locally as native PWA"
-            type="button"
-          >
-            <Smartphone className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{t.installApp}</span>
-          </button>
-        )}
-
-        {/* Custom iOS Install Guide Activator */}
-        {isIOS && (
-          <button
-            onClick={onOpenIosInstallGuide}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/30 border border-teal-150/60 dark:border-teal-900/60 rounded-md hover:bg-teal-100 dark:hover:bg-teal-950/50 transition-all cursor-pointer font-sans-fa"
-            title="Show instructions to install PWA on iOS"
-            type="button"
-          >
-            <Smartphone className="w-3.5 h-3.5 text-teal-505" />
-            <span className="hidden sm:inline">{t.installApp} (iOS)</span>
-          </button>
-        )}
+        {/* Global PWA Install trigger (Chrome) or custom step-by-step instructions (iOS/Android/Desktop fallback) */}
+        <button
+          onClick={isInstallable ? onTriggerInstall : onOpenIosInstallGuide}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-650 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/60 rounded-md hover:bg-indigo-100 dark:hover:bg-indigo-950/50 transition-all cursor-pointer font-sans-fa"
+          title={isInstallable ? "Install App locally as native PWA" : "Show offline PWA installation guide"}
+          type="button"
+        >
+          <Smartphone className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">{t.installApp}</span>
+        </button>
 
         {/* Language Selection switcher */}
         <button

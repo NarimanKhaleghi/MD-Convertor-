@@ -60,7 +60,7 @@ export interface TranslationSet {
 
 export const translations: Record<'en' | 'fa', TranslationSet> = {
   en: {
-    appName: "Markdown Convertor | تبدیل کننده مارکداون",
+    appName: "Markdown Converter",
     autoSaving: "Saving...",
     saved: "Saved",
     editorMode: "Editor",
@@ -114,7 +114,7 @@ export const translations: Record<'en' | 'fa', TranslationSet> = {
     formatMismatchError: "Format mismatch! Only .md, .txt, or .docx files are permitted.",
   },
   fa: {
-    appName: "Markdown Convertor | تبدیل کننده مارکداون",
+    appName: "تبدیل کننده پیشرفته مارکداون",
     autoSaving: "در حال ذخیره‌سازی...",
     saved: "ذخیره شد",
     editorMode: "ویرایشگر",
