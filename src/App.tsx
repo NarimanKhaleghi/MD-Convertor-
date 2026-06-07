@@ -34,16 +34,7 @@ interface Toast {
 }
 
 export default function App() {
-  // Sync window height with visual viewport to prevent iOS/Android keyboard scroll bugs
-  const [viewportHeight, setViewportHeight] = useState<string>('100vh');
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const updateHeight = () => {
-      const heightVal = window.visualViewport ? `${window.visualViewport.height}px` : '100vh';
-      setViewportHeight(heightVal);
-    };
 
     updateHeight();
 
@@ -663,7 +654,6 @@ export default function App() {
   };
 
   return (
-    <div style={{ height: viewportHeight }} className={`fixed inset-0 flex flex-col overflow-hidden bg-slate-50 dark:bg-zinc-950 font-sans transition-colors duration-200 ${language === 'fa' ? 'rtl text-right' : 'ltr text-left'}`}>
       
       {/* Dynamic SEO Head Title Synchronized Content (Implicit document rendering values) */}
       {!isFullScreen && (
