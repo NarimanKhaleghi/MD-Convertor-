@@ -34,21 +34,7 @@ interface Toast {
 }
 
 export default function App() {
-
-
-    updateHeight();
-
-    window.visualViewport?.addEventListener('resize', updateHeight);
-    window.visualViewport?.addEventListener('scroll', updateHeight);
-    window.addEventListener('resize', updateHeight);
-
-    return () => {
-      window.visualViewport?.removeEventListener('resize', updateHeight);
-      window.visualViewport?.removeEventListener('scroll', updateHeight);
-      window.removeEventListener('resize', updateHeight);
-    };
-  }, []);
-
+  
   // --- Toast Notifications State ---
   const [toasts, setToasts] = useState<Toast[]>([]);
 
@@ -654,6 +640,7 @@ export default function App() {
   };
 
   return (
+    <div className={`fixed inset-0 flex flex-col overflow-hidden bg-slate-50 dark:bg-zinc-950 font-sans transition-colors duration-200 ${language === 'fa' ? 'rtl text-right' : 'ltr text-left'}`}>
       
       {/* Dynamic SEO Head Title Synchronized Content (Implicit document rendering values) */}
       {!isFullScreen && (
