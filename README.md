@@ -2,8 +2,8 @@
 
 # ✨ Markdown Converter ✨
 
-[![فارسی](https://img.shields.io/badge/lang-fa-blue.svg)](README.fa.md)
-[![English](https://img.shields.io/badge/lang-en-red.svg)](README.md)
+[![فارسی](https://img.shields.io/badge/lang-fa-blue.svg)](https://github.com/NarimanKhaleghi/Markdown_Converter/blob/main/README_FA.md)
+[![English](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/NarimanKhaleghi/Markdown_Converter)
 
 ---
 
