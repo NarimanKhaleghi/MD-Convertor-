@@ -962,7 +962,7 @@ export default function App() {
               {/* Action Buttons */}
               <div className="w-full space-y-2">
                 <a
-                  href="https://github.com/NarimanKhaleghi"
+                  href="https://github.com/NarimanKhaleghi/Markdown_Converter"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setShowGithubModal(false)}
@@ -1130,7 +1130,7 @@ export default function App() {
 
                 {onboardingStep === 3 && (
                   <a
-                    href="https://github.com/NarimanKhaleghi"
+                    href="https://github.com/NarimanKhaleghi/Markdown_Converter"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={handleCloseOnboarding}
