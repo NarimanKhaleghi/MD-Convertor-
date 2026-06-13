@@ -8,7 +8,7 @@ import {
   Heading, Bold, Italic, Strikethrough, 
   Code, Terminal, Quote, List, ListOrdered, CheckSquare, 
   Table2, Link2, Image as ImageIcon, Minus, Eraser,
-  Maximize2, Minimize2, FileUp, Download, Copy, Sun, Moon, Globe, Github, Smartphone
+  Maximize2, Minimize2, FileUp, Download, Copy, Sun, Moon, Globe, Github, Smartphone, Undo2, Redo2
 } from 'lucide-react';
 import { translations } from '../utils/translations';
 
@@ -61,6 +61,69 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   const [showExportMenu, setShowExportMenu] = React.useState(false);
   const [showHeadingMenu, setShowHeadingMenu] = React.useState(false);
 
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // General Hotkey capturing
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+      if (!cmdOrCtrl) return;
+
+      const key = e.key.toLowerCase();
+      let handled = false;
+
+      if (key === 'z' && !e.shiftKey) {
+        // Handled by browser natively in textarea, but if elsewhere:
+        const textarea = getTextarea();
+        if (textarea && document.activeElement !== textarea) {
+          textarea.focus();
+          document.execCommand('undo');
+          handled = true;
+        }
+      } else if ((key === 'y') || (key === 'z' && e.shiftKey)) {
+        const textarea = getTextarea();
+        if (textarea && document.activeElement !== textarea) {
+          textarea.focus();
+          document.execCommand('redo');
+          handled = true;
+        }
+      } else if (key === 'b') {
+        applyFormat('**', '**', 'bold text'); handled = true;
+      } else if (key === 'i' && !e.shiftKey) {
+        applyFormat('*', '*', 'italic text'); handled = true;
+      } else if (key === 's' && e.shiftKey) {
+        applyFormat('~~', '~~', 'strikethrough text'); handled = true;
+      } else if (key === 'e' && !e.shiftKey) {
+        applyFormat('`', '`', 'code'); handled = true;
+      } else if (key === 'e' && e.shiftKey) {
+        applyFormat('```javascript\n', '\n```', '// paste code snippet here'); handled = true;
+      } else if (key === 'q') {
+        insertBlockFormat('> '); handled = true;
+      } else if (key === '8' && e.shiftKey) { // * character for bullet
+        insertBlockFormat('- '); handled = true;
+      } else if (key === '7' && e.shiftKey) { // & character basically, but we use numbers
+        insertBlockFormat('1. '); handled = true;
+      } else if (key === 'l' && e.shiftKey) {
+        insertBlockFormat('- [ ] '); handled = true;
+      } else if (key === 't' && !e.shiftKey) {
+        insertBlockFormat('| Column 1 | Column 2 |\n| :--- | :---: |\n| Row 1 Col 1 | Row 1 Col 2 |'); handled = true;
+      } else if (key === 'k') {
+        applyFormat('[', '](https://example.com)', 'link label'); handled = true;
+      } else if (key === 'i' && e.shiftKey) {
+        applyFormat('![', '](https://images.unsplash.com/photo-1457369804613-52c61a468e7d)', 'image caption'); handled = true;
+      } else if (key === 'h' && !e.shiftKey) {
+        insertBlockFormat('---'); handled = true;
+      }
+
+      if (handled) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [getTextarea, onContentChange]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
@@ -91,8 +154,19 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       cursorOffset = syntaxStart.length + placeholder.length;
     }
 
-    const newValue = text.substring(0, start) + replacement + text.substring(end);
-    onContentChange(newValue);
+    textarea.focus();
+    textarea.setSelectionRange(start, end);
+    
+    // Use execCommand to preserve browser native Undo/Redo stack
+    const success = document.execCommand('insertText', false, replacement);
+    
+    // Fallback if execCommand fails (e.g. some mobile browsers)
+    if (!success) {
+      const newValue = text.substring(0, start) + replacement + text.substring(end);
+      onContentChange(newValue);
+    } else {
+      onContentChange(textarea.value);
+    }
 
     // Refocus and place cursor elegantly
     setTimeout(() => {
@@ -113,8 +187,17 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     const prefix = needsPrevNewline ? '\n' : '';
     const formattedText = `${prefix}${syntax}\n`;
 
-    const newValue = text.substring(0, start) + formattedText + text.substring(start);
-    onContentChange(newValue);
+    textarea.focus();
+    textarea.setSelectionRange(start, start);
+    
+    const success = document.execCommand('insertText', false, formattedText);
+    
+    if (!success) {
+      const newValue = text.substring(0, start) + formattedText + text.substring(start);
+      onContentChange(newValue);
+    } else {
+      onContentChange(textarea.value);
+    }
 
     setTimeout(() => {
       textarea.focus();
@@ -127,66 +210,79 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   const formattingOptions = [
     {
       label: 'Bold',
+      hotkey: 'Ctrl+B',
       icon: <Bold className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />,
       action: () => applyFormat('**', '**', 'bold text')
     },
     {
       label: 'Italic',
+      hotkey: 'Ctrl+I',
       icon: <Italic className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />,
       action: () => applyFormat('*', '*', 'italic text')
     },
     {
       label: 'Strikethrough',
+      hotkey: 'Ctrl+Shift+S',
       icon: <Strikethrough className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />,
       action: () => applyFormat('~~', '~~', 'strikethrough text')
     },
     {
       label: 'Inline Code',
+      hotkey: 'Ctrl+E',
       icon: <Code className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />,
       action: () => applyFormat('`', '`', 'code')
     },
     {
       label: 'Code Block',
+      hotkey: 'Ctrl+Shift+E',
       icon: <Terminal className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />,
       action: () => applyFormat('```javascript\n', '\n```', '// paste code snippet here')
     },
     {
       label: 'Blockquote',
+      hotkey: 'Ctrl+Q',
       icon: <Quote className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />,
       action: () => insertBlockFormat('> blockquote text')
     },
     {
       label: 'Bullet List',
+      hotkey: 'Ctrl+Shift+8',
       icon: <List className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />,
       action: () => insertBlockFormat('- Item 1\n- Item 2')
     },
     {
       label: 'Numbered List',
+      hotkey: 'Ctrl+Shift+7',
       icon: <ListOrdered className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />,
       action: () => insertBlockFormat('1. First item\n2. Second item')
     },
     {
       label: 'Task List',
+      hotkey: 'Ctrl+Shift+L',
       icon: <CheckSquare className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />,
       action: () => insertBlockFormat('- [ ] Complete task 1\n- [ ] Complete task 2')
     },
     {
       label: 'GFM Table',
+      hotkey: 'Ctrl+T',
       icon: <Table2 className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />,
       action: () => insertBlockFormat('| Column 1 | Column 2 |\n| :--- | :---: |\n| Row 1 Col 1 | Row 1 Col 2 |')
     },
     {
       label: 'Link',
+      hotkey: 'Ctrl+K',
       icon: <Link2 className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />,
       action: () => applyFormat('[', '](https://example.com)', 'link label')
     },
     {
       label: 'Image Link',
+      hotkey: 'Ctrl+Shift+I',
       icon: <ImageIcon className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />,
       action: () => applyFormat('![', '](https://images.unsplash.com/photo-1457369804613-52c61a468e7d)', 'image caption')
     },
     {
       label: 'Horizontal Divider',
+      hotkey: 'Ctrl+H',
       icon: <Minus className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />,
       action: () => insertBlockFormat('---')
     }
@@ -238,7 +334,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             key={opt.label}
             onClick={opt.action}
             className="flex-1 shrink min-w-0 flex items-center justify-center p-1 hover:bg-slate-200/50 dark:hover:bg-zinc-800/50 rounded-md text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer border-0 outline-none bg-transparent"
-            title={opt.label}
+            title={`${opt.label} (${opt.hotkey})`}
             type="button"
           >
             {opt.icon}
@@ -360,6 +456,34 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           type="button"
         >
           <Copy className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />
+        </button>
+
+        {/* 3.1 Undo */}
+        <button
+          onClick={() => {
+            const textarea = getTextarea();
+            if (textarea) textarea.focus();
+            document.execCommand('undo');
+          }}
+          className="flex-1 shrink min-w-0 flex items-center justify-center p-1 hover:bg-slate-200/50 dark:hover:bg-zinc-800/50 rounded-md text-slate-650 dark:text-zinc-450 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer border-0 outline-none bg-transparent"
+          title={`${t.undo || 'Undo'} (Ctrl+Z)`}
+          type="button"
+        >
+          <Undo2 className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />
+        </button>
+
+        {/* 3.2 Redo */}
+        <button
+          onClick={() => {
+            const textarea = getTextarea();
+            if (textarea) textarea.focus();
+            document.execCommand('redo');
+          }}
+          className="flex-1 shrink min-w-0 flex items-center justify-center p-1 hover:bg-slate-200/50 dark:hover:bg-zinc-800/50 rounded-md text-slate-650 dark:text-zinc-450 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer border-0 outline-none bg-transparent"
+          title={`${t.redo || 'Redo'} (Ctrl+Y)`}
+          type="button"
+        >
+          <Redo2 className="w-[3.5vw] h-[3.5vw] min-w-3.5 min-h-3.5 max-w-4.5 max-h-4.5 sm:w-4 sm:h-4 lg:w-4.5 lg:h-4.5" />
         </button>
 
         {/* 4. Erase / Clear Canvas (Icon Button) */}

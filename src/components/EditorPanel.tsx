@@ -16,7 +16,7 @@ interface EditorPanelProps {
   characterCount: number;
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   language: 'en' | 'fa';
-  onSelectText?: (text: string) => void;
+  onSelectText?: (data: { text: string; start: number; end: number }) => void;
   onScroll?: (e: React.UIEvent<HTMLTextAreaElement>) => void;
 }
 
@@ -61,9 +61,9 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
     const end = textarea.selectionEnd;
     if (start !== end) {
       const selected = textarea.value.substring(start, end);
-      onSelectText(selected);
+      onSelectText({ text: selected, start, end });
     } else {
-      onSelectText('');
+      onSelectText({ text: '', start: 0, end: 0 });
     }
   };
 

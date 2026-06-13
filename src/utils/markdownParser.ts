@@ -268,6 +268,12 @@ export function parseMarkdownToBlocks(markdown: string): MarkdownBlock[] {
       while (i < lines.length && listRegex.test(lines[i])) {
         const itemMatch = lines[i].match(listRegex);
         if (!itemMatch) break;
+        
+        const lineIsOrdered = /^\s*\d+\./.test(lines[i]);
+        if (lineIsOrdered !== isOrdered && listItems.length > 0) {
+          // If the list type changes entirely at the root, break the list. nesting can be complex but simple change means end of this list
+          if (itemMatch[1].length === 0) break;
+        }
 
         const spacesCount = itemMatch[1].length;
         const marker = itemMatch[2];
@@ -321,7 +327,10 @@ export function parseMarkdownToBlocks(markdown: string): MarkdownBlock[] {
     }
 
     // 8. Plain Paragraph with multiline wrapping
-    if (!currentBlock) {
+    if (!currentBlock || currentBlock.type !== 'paragraph') {
+      if (currentBlock) {
+        blocks.push(currentBlock as MarkdownBlock);
+      }
       currentBlock = {
         id: generateId(),
         type: 'paragraph',
@@ -329,7 +338,7 @@ export function parseMarkdownToBlocks(markdown: string): MarkdownBlock[] {
         isRTL: isRTLText(trimmed)
       };
     } else {
-      currentBlock.content = (currentBlock.content || '') + ' ' + trimmed;
+      currentBlock.content = (currentBlock.content || '') + '\n' + trimmed;
       if (isRTLText(trimmed)) {
         currentBlock.isRTL = true;
       }
@@ -375,7 +384,7 @@ export function renderBlocksToHTML(blocks: MarkdownBlock[]): string {
           return `<${tag} ${dirAttr} class="${classes[styleLevel]}">${contentHTML}</${tag}>`;
         }
         case 'paragraph': {
-          const contentHTML = parseInlineContent(block.content || '');
+          const contentHTML = parseInlineContent(block.content || '').replace(/\n/g, '<br />');
           return `<p ${dirAttr} class="${containerClass} text-zinc-700 dark:text-zinc-300 antialiased font-sans text-base">${contentHTML}</p>`;
         }
         case 'blockquote': {
@@ -440,9 +449,7 @@ export function renderBlocksToHTML(blocks: MarkdownBlock[]): string {
           const openTags: string[] = [];
 
           const tagType = block.ordered ? 'ol' : 'ul';
-          const listCls = block.ordered 
-            ? 'list-decimal list-inside space-y-2' 
-            : 'list-disc list-inside space-y-2';
+          const listCls = 'list-none space-y-2';
 
           for (let k = 0; k < items.length; k++) {
             const item = items[k];
@@ -450,7 +457,7 @@ export function renderBlocksToHTML(blocks: MarkdownBlock[]): string {
             // Manage level structures and nested block indentations
             while (item.level > currentLevel) {
               openTags.push(tagType);
-              html += `<${tagType} class="${listCls} ml-5 ${k === 0 ? '' : 'mt-2'}">`;
+              html += `<${tagType} class="${listCls} ml-5 rtl:ml-0 rtl:mr-5 ${k === 0 ? '' : 'mt-2'}">`;
               currentLevel++;
             }
             while (item.level < currentLevel) {
@@ -464,15 +471,21 @@ export function renderBlocksToHTML(blocks: MarkdownBlock[]): string {
 
             if (isTask) {
               const checkIcon = item.checked
-                ? `<span class="inline-flex items-center justify-center w-4 h-4 mr-2 bg-indigo-500 rounded text-white text-[10px] font-bold">✓</span>`
-                : `<span class="inline-block w-4 h-4 mr-2 border-2 border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-900"></span>`;
+                ? `<span class="inline-flex items-center justify-center w-4 h-4 mr-2 rtl:mr-0 rtl:ml-2 bg-indigo-500 rounded text-white text-[10px] font-bold">✓</span>`
+                : `<span class="inline-block w-4 h-4 mr-2 rtl:mr-0 rtl:ml-2 border-2 border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-900"></span>`;
               html += `<li class="flex items-start text-zinc-700 dark:text-zinc-300 leading-normal mb-1">
                 <span class="mt-1 flex-shrink-0 cursor-default">${checkIcon}</span>
                 <span class="flex-1">${itemContent}</span>
               </li>`;
             } else {
-              const valAttr = item.number !== undefined ? `value="${item.number}"` : '';
-              html += `<li ${valAttr} class="text-zinc-700 dark:text-zinc-300 leading-normal mb-1">${itemContent}</li>`;
+              const markerHTML = (item.number !== undefined)
+                ? `<span class="flex-shrink-0 mr-2 rtl:mr-0 rtl:ml-2 font-bold text-zinc-500 dark:text-zinc-400 select-none">${item.number}.</span>`
+                : `<span class="flex-shrink-0 mr-2 rtl:mr-0 rtl:ml-2 text-zinc-400 dark:text-zinc-500 text-lg leading-none select-none">•</span>`;
+              
+              html += `<li class="flex items-start text-zinc-700 dark:text-zinc-300 leading-normal mb-1">
+                ${markerHTML}
+                <span class="flex-1">${itemContent}</span>
+              </li>`;
             }
           }
 

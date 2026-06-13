@@ -12,7 +12,7 @@ interface PreviewPanelProps {
   isRTL: boolean;
   language: 'en' | 'fa';
   onCopyPlainText: () => void;
-  selectedText: string;
+  selectedText: { text: string; start: number; end: number };
   previewRef: React.RefObject<HTMLDivElement | null>;
   onScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
 }
@@ -29,7 +29,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   const isDocEmpty = !htmlContent || htmlContent.includes('Start typing your document');
   const t = translations[language];
 
-  // Selection highlighting effect
+  // Selection highlighting effect using DOM walk and temporary highlight span wrapper
   useEffect(() => {
     if (!previewRef || !previewRef.current) return;
     const container = previewRef.current;
@@ -44,10 +44,10 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
       }
     });
 
-    if (!selectedText || selectedText.trim().length < 3) return;
+    if (!selectedText.text || selectedText.text.trim().length < 3) return;
 
     // Remove common Markdown characters to match plain word sequences
-    const cleanSearchStr = selectedText
+    const cleanSearchStr = selectedText.text
       .trim()
       .replace(/[*_`#~[\]()|:x-]/g, '')
       .replace(/\s+/g, ' ')

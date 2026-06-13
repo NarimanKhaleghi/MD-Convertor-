@@ -34,7 +34,6 @@ interface Toast {
 }
 
 export default function App() {
-  
   // --- Toast Notifications State ---
   const [toasts, setToasts] = useState<Toast[]>([]);
 
@@ -154,7 +153,7 @@ export default function App() {
   const [savingStatus, setSavingStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
   // Text selection tracking state (interactive highlighting sync)
-  const [selectedText, setSelectedText] = useState<string>('');
+  const [selectedText, setSelectedText] = useState<{text: string; start: number; end: number}>({ text: '', start: 0, end: 0 });
 
   // Refs for scroll elements and inputs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -230,9 +229,9 @@ export default function App() {
     const textarea = e.currentTarget;
     if (!textarea) return;
 
-    // Save scroll position ratio
-    const denom = textarea.scrollHeight - textarea.clientHeight;
-    const percentage = denom > 0 ? (textarea.scrollTop / denom) : 0;
+    // Save scroll position ratio based on viewport center
+    const centerPoint = textarea.scrollTop + (textarea.clientHeight / 2);
+    const percentage = textarea.scrollHeight > 0 ? (centerPoint / textarea.scrollHeight) : 0;
     lastScrollRatioRef.current = percentage;
 
     if (uiMode !== 'split' || isSyncingScrollRef.current) return;
@@ -243,7 +242,7 @@ export default function App() {
 
     const preview = previewRef.current;
     if (preview) {
-      preview.scrollTop = percentage * (preview.scrollHeight - preview.clientHeight);
+      preview.scrollTop = (percentage * preview.scrollHeight) - (preview.clientHeight / 2);
     }
 
     setTimeout(() => {
@@ -256,9 +255,9 @@ export default function App() {
     const preview = e.currentTarget;
     if (!preview) return;
 
-    // Save scroll position ratio
-    const denom = preview.scrollHeight - preview.clientHeight;
-    const percentage = denom > 0 ? (preview.scrollTop / denom) : 0;
+    // Save scroll position ratio based on viewport center
+    const centerPoint = preview.scrollTop + (preview.clientHeight / 2);
+    const percentage = preview.scrollHeight > 0 ? (centerPoint / preview.scrollHeight) : 0;
     lastScrollRatioRef.current = percentage;
 
     if (uiMode !== 'split' || isSyncingScrollRef.current) return;
@@ -269,7 +268,7 @@ export default function App() {
 
     const textarea = textareaRef.current;
     if (textarea) {
-      textarea.scrollTop = percentage * (textarea.scrollHeight - textarea.clientHeight);
+      textarea.scrollTop = (percentage * textarea.scrollHeight) - (textarea.clientHeight / 2);
     }
 
     setTimeout(() => {
@@ -640,7 +639,7 @@ export default function App() {
   };
 
   return (
-    <div className={`fixed inset-0 flex flex-col overflow-hidden bg-slate-50 dark:bg-zinc-950 font-sans transition-colors duration-200 ${language === 'fa' ? 'rtl text-right' : 'ltr text-left'}`}>
+    <div className={`flex flex-col h-screen overflow-hidden bg-slate-50 dark:bg-zinc-950 font-sans transition-colors duration-200 ${language === 'fa' ? 'rtl text-right' : 'ltr text-left'}`}>
       
       {/* Dynamic SEO Head Title Synchronized Content (Implicit document rendering values) */}
       {!isFullScreen && (
@@ -962,7 +961,7 @@ export default function App() {
               {/* Action Buttons */}
               <div className="w-full space-y-2">
                 <a
-                  href="https://github.com/NarimanKhaleghi/Markdown_Converter"
+                  href="https://github.com/NarimanKhaleghi"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setShowGithubModal(false)}
@@ -1009,6 +1008,27 @@ export default function App() {
           },
           {
             step: 2,
+            title: language === 'fa' ? 'راهنمای نوار ابزار و دکمه‌ها 🛠️' : 'Toolbar & UI Guide 🛠️',
+            desc: language === 'fa' 
+              ? 'بالای ویرایشگر یک نوار ابزار کامل وجود دارد تا به راحتی تغییرات را مدیریت کنید. در دسکتاپ و موبایل تجربه یکسانی خواهید داشت.'
+              : 'Our comprehensive toolbar helps you manage imports, documents, and view modes from any device.',
+            icon: <Eye className="w-8 h-8 text-sky-500 animate-pulse" />,
+            features: language === 'fa'
+              ? [
+                  'بارگذاری/خروجی (⬇️/⬆️): ورود فایل Docx یا تبدیل مستقیم به HTML/Docx.',
+                  'کپی مستقیم (📄): کپی متن خالص بدون کاراکترهای مارکداون.',
+                  'تمام‌صفحه/حالت‌های تاریک/روشن (🌓/⛶): شخصی‌سازی محیط کار.',
+                  'حالت موبایل (📱) در پایین صفحه: سوییچ بین نمای ویرایشگر و پیش‌نمایش.'
+                ]
+              : [
+                  'Import/Export (⬇️/⬆️): Local/URL imports and HTML/Docx rendering.',
+                  'Copy Plain Text (📄): Strip formatting and copy raw clean text.',
+                  'Fullscreen & Themes (🌓/⛶): Adjust your editing environment.',
+                  'Mobile View Toggle (📱): Switch between Editor and Preview seamlessly.'
+                ]
+          },
+          {
+            step: 3,
             title: language === 'fa' ? 'نصب مستقل و کارکرد ۱۰۰٪ آفلاین 📱' : 'Install PWA for 100% Offline Power 📱',
             desc: language === 'fa'
               ? 'بزرگترین مزیت این برنامه مستقل بودن کامل آن از اینترنت و سرور (کلاینت ساید) است! با نصب وب‌اپلیکیشن (PWA) روی دسکتاپ یا گوشی همراه خود، همواره میانبر سریعی دارید که بدون نیاز به اینترنت و با بیشترین سرعت بالا می‌آید.'
@@ -1027,7 +1047,7 @@ export default function App() {
                 ]
           },
           {
-            step: 3,
+            step: 4,
             title: language === 'fa' ? 'حمایت از نویسنده با ستاره گیت‌هاب ⭐️' : 'Give Us a GitHub Support Star ⭐',
             desc: language === 'fa'
               ? 'توسعه این برنامه کاملاً رایگان، متن‌باز و بدون تبلیغات انجام شده است. اگر این ابزار به کارتون اومده و تجربه‌تون رو بهتر کرده، با اهدا یک ستاره به پروژه در گیت‌هاب از کارهای مستقل حمایت کنید. بی‌نهایت سپاسگزارم!'
@@ -1067,9 +1087,19 @@ export default function App() {
                 <X className="w-4 h-4" />
               </button>
 
+              {/* Language Switcher in Onboarding */}
+              <button 
+                onClick={() => setLanguage(lang => lang === 'en' ? 'fa' : 'en')}
+                className="absolute top-4 right-4 rtl:right-auto rtl:left-4 ltr:left-auto ltr:right-4 flex items-center gap-1.5 p-1.5 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg text-indigo-600 dark:text-indigo-400 font-bold text-[10px] transition-colors cursor-pointer border border-indigo-100 dark:border-indigo-900/40 bg-indigo-50/50 dark:bg-indigo-950/20"
+                type="button"
+              >
+                <Globe className="w-3.5 h-3.5" />
+                <span>{language === 'fa' ? 'EN' : 'فا'}</span>
+              </button>
+
               {/* Progress Tracker bar */}
               <div className="flex items-center gap-1.5 justify-center mb-5 mt-1">
-                {[1, 2, 3].map(s => (
+                {[1, 2, 3, 4].map(s => (
                   <button
                     key={s}
                     onClick={() => setOnboardingStep(s)}
@@ -1110,7 +1140,7 @@ export default function App() {
                 </div>
 
                 {/* Custom Action details (e.g., PWA install or stars) */}
-                {onboardingStep === 2 && !isStandalone && (
+                {onboardingStep === 3 && !isStandalone && (
                   <button
                     onClick={() => {
                       if (isInstallable) {
@@ -1128,9 +1158,9 @@ export default function App() {
                   </button>
                 )}
 
-                {onboardingStep === 3 && (
+                {onboardingStep === 4 && (
                   <a
-                    href="https://github.com/NarimanKhaleghi/Markdown_Converter"
+                    href="https://github.com/NarimanKhaleghi"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={handleCloseOnboarding}
@@ -1161,7 +1191,7 @@ export default function App() {
                     </button>
                   )}
 
-                  {onboardingStep < 3 ? (
+                  {onboardingStep < 4 ? (
                     <button
                       onClick={() => setOnboardingStep(prev => prev + 1)}
                       className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl text-xs transition-colors cursor-pointer font-sans-fa shadow-md hover:shadow-indigo-500/10"
